@@ -48,6 +48,7 @@ def parse_args():
 
     log_parser = subparser.add_parser("log",help="To view all commits",description="it iteratively sees the parent oid of an oid and prints each commit")
     log_parser.set_defaults(func=log)
+    log_parser.add_argument('oid',nargs='?')
 
     # checkout
 
@@ -81,7 +82,7 @@ def commit(args):
     print(base.commit(args.message))
 
 def log(args):
-    oid = data.get_HEAD()
+    oid = args.oid or data.get_HEAD()
     while oid:
         commit = base.get_commit(oid)
         print(f'commit : {oid}\n')
