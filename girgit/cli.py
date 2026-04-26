@@ -49,6 +49,12 @@ def parse_args():
     log_parser = subparser.add_parser("log",help="To view all commits",description="it iteratively sees the parent oid of an oid and prints each commit")
     log_parser.set_defaults(func=log)
 
+    # checkout
+
+    checkout_parser = subparser.add_parser("checkout",help="To extract a commit implementation to working directory" , description= "It extracts the commit object from get_commit() and uses commit.tree with read_tree to bring the set of directories to working directories.")
+    checkout_parser.add_argument('oid')
+    checkout_parser.set_defaults(func=checkout)
+
     return parser.parse_args()
 
 
@@ -83,6 +89,10 @@ def log(args):
         print('')
 
         oid = commit.parent
+
+
+def checkout(args):
+    base.checkout(args.oid)
 
 def main():
     args = parse_args()
