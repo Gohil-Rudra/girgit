@@ -1,0 +1,11 @@
+README.md
+setup.py
+girgit/__init__.py
+girgit/base.py
+girgit/cli.py
+girgit/data.py
+girgit.egg-info/PKG-INFO
+girgit.egg-info/SOURCES.txt
+girgit.egg-info/dependency_links.txt
+girgit.egg-info/entry_points.txt
+girgit.egg-info/top_level.txt
