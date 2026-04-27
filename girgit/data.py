@@ -26,13 +26,16 @@ def get_object(oid,expected='blob'):
         assert type_ == expected , f'Wanted {expected} type , got {type_}'
     return content # This is bytes data
 
-def set_HEAD(oid):
-    with open (f'{GIT_DIR}/HEAD','w') as inp :
+
+def update_ref(ref,oid):
+    with open (f'{GIT_DIR}/{ref}') as inp:
         inp.write(oid)
 
-def get_HEAD():
+def get_ref(ref):
     try:
-        with open(f'{GIT_DIR}/HEAD') as out:
+        with open (f'{GIT_DIR}/{ref}') as out:
             return out.read()
     except (FileNotFoundError,IsADirectoryError):
         return None
+
+

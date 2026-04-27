@@ -56,6 +56,13 @@ def parse_args():
     checkout_parser.add_argument('oid')
     checkout_parser.set_defaults(func=checkout)
 
+    # Tagging
+
+    tag_parser = subparser.add_parser("tag",help="to use it as alias of oid in checkout",description="Its hard to remember the oid everytime we want to checkout thus we tag it with a name")
+    tag_parser.add_argument('name')
+    checkout_parser.add_argument('oid',nargs='?')
+    tag_parser.set_defaults(func=tag)
+
     return parser.parse_args()
 
 
@@ -82,7 +89,7 @@ def commit(args):
     print(base.commit(args.message))
 
 def log(args):
-    oid = args.oid or data.get_HEAD()
+    oid = args.oid or data.get_ref('HEAD')
     while oid:
         commit = base.get_commit(oid)
         print(f'commit : {oid}\n')
@@ -94,6 +101,10 @@ def log(args):
 
 def checkout(args):
     base.checkout(args.oid)
+
+def tag(args):
+    oid = data.get_ref('HEAD') or args.oid
+    base.create_tag(args.name,oid)
 
 def main():
     args = parse_args()
