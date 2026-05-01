@@ -28,12 +28,14 @@ def get_object(oid,expected='blob'):
 
 
 def update_ref(ref,oid):
-    with open (f'{GIT_DIR}/{ref}') as inp:
+    ref_path = f'{GIT_DIR}/{ref}'
+    os.makedirs(os.path.dirname(ref_path),exist_ok=True)
+    with open (f'{ref_path}','w') as inp:
         inp.write(oid)
 
 def get_ref(ref):
     try:
-        with open (f'{GIT_DIR}/{ref}') as out:
+        with open (f'{GIT_DIR}/{ref}','r') as out:
             return out.read()
     except (FileNotFoundError,IsADirectoryError):
         return None

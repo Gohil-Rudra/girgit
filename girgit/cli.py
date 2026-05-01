@@ -40,7 +40,7 @@ def parse_args():
     read_tree_parser.set_defaults(func=read_tree)
 
     # commit
-    commit_parser = subparser.add_parser("commit",help="To Save the changes !",description="It will create a commit object that stores meta data like author,time & date along with type and oid of data")
+    commit_parser = subparser.add_parser("commit",help="To save the changes",description="It will create a commit object that stores meta data like author,time & date along with type and oid of data")
     commit_parser.set_defaults(func=commit)
     commit_parser.add_argument('--message','-m',required=True)
 
@@ -58,7 +58,7 @@ def parse_args():
 
     # Tagging
 
-    tag_parser = subparser.add_parser("tag",help="to use it as alias of oid in checkout",description="Its hard to remember the oid everytime we want to checkout thus we tag it with a name")
+    tag_parser = subparser.add_parser("tag",help="To use it as alias of oid in checkout",description="Its hard to remember the oid everytime we want to checkout thus we tag it with a name")
     tag_parser.add_argument('name')
     checkout_parser.add_argument('oid',nargs='?')
     tag_parser.set_defaults(func=tag)
