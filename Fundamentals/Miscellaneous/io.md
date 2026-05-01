@@ -6,6 +6,7 @@ i am making an effort to convey the ***Why*** of the code.
 #### The Code :
 
 ```python
+import sys
 
 def cat_file (args):
     sys.stdout.flush ()
@@ -79,3 +80,6 @@ close to OS and requires no Encoding thus 2 is printed first then 1.*
 *Note : both contains the buffer the reason for this one is text needs encoding.*
 
 > so inorder to avoid such nuance we `flush()` the stdout before writing inside the stdout.buffer.
+
+
+
