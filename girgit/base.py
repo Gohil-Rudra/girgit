@@ -129,8 +129,11 @@ def is_ignored(path):
 def get_oid(name):
     # return data.get_ref(name) or name
 
+    if name == "@":
+        name = "HEAD"
+        
     # name is word
-    
+
     refs_to_try = [
         f'{name}',
         f'refs/{name}',

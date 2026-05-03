@@ -51,7 +51,7 @@ def parse_args():
 
     log_parser = subparser.add_parser("log",help="To view all commits",description="it iteratively sees the parent oid of an oid and prints each commit")
     log_parser.set_defaults(func=log)
-    log_parser.add_argument('oid',nargs='?',type=oid)
+    log_parser.add_argument('oid',nargs='?',type=oid,default='@')
 
     # checkout
 
@@ -63,7 +63,7 @@ def parse_args():
 
     tag_parser = subparser.add_parser("tag",help="To use it as alias of oid in checkout",description="Its hard to remember the oid everytime we want to checkout thus we tag it with a name")
     tag_parser.add_argument('name')
-    tag_parser.add_argument('oid',nargs='?',type=oid)
+    tag_parser.add_argument('oid',nargs='?',type=oid,default='@')
     tag_parser.set_defaults(func=tag)
 
     return parser.parse_args()
@@ -92,7 +92,7 @@ def commit(args):
     print(base.commit(args.message))
 
 def log(args):
-    oid = args.oid or data.get_ref('HEAD')
+    oid = args.oid
     while oid:
         commit = base.get_commit(oid)
         print(f'commit : {oid}\n')
@@ -105,8 +105,7 @@ def checkout(args):
     base.checkout(args.oid)
 
 def tag(args):
-    oid = args.oid or data.get_ref('HEAD')
-    base.create_tag(args.name,oid)
+    base.create_tag(args.name,args.oid)
 
 def main():
     args = parse_args()
