@@ -66,6 +66,11 @@ def parse_args():
     tag_parser.add_argument('oid',nargs='?',type=oid,default='@')
     tag_parser.set_defaults(func=tag)
 
+    # k
+
+    k_parser = subparser.add_parser("k",help="To visualize the graph",description="We will use graphviz to create the graph similar to gitk")
+    k_parser.set_defaults(func=k)
+
     return parser.parse_args()
 
 
@@ -106,6 +111,17 @@ def checkout(args):
 
 def tag(args):
     base.create_tag(args.name,args.oid)
+
+def k(args): # Creation of edges for visualization
+    oids = set()
+    for ref_name,ref in data.iter_refs():
+        print(ref_name,ref)
+        oids.add(ref)
+    for oid in base.iter_commits_and_parents(oids):
+        commit = base.get_commit(oid)
+        print(oid)
+        if commit.parent:
+            print("Parent ",commit.parent)
 
 def main():
     args = parse_args()
