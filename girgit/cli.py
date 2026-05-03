@@ -14,6 +14,9 @@ def parse_args():
     subparser = parser.add_subparsers(dest="command")
     subparser.required = True
 
+    oid = base.get_oid
+    # we are passing the function itself here... later in add_argument the function is applied on the argument !
+
     # init
     init_parser = subparser.add_parser("init",help="To initialize a repository",description="Git creates a hidden .git/ directory inside your current folder. That directory is the entire brain of Git for your project.")
     init_parser.set_defaults(func=init)
@@ -26,7 +29,7 @@ def parse_args():
     # cat-file
 
     cat_file_parser = subparser.add_parser("cat-file",help="To view stored object",description="It will take input oid to retrieve the file stored at objects/oid")
-    cat_file_parser.add_argument("oid")
+    cat_file_parser.add_argument("oid",type=oid)
     cat_file_parser.set_defaults(func=cat_file)
 
     # write-tree
@@ -36,7 +39,7 @@ def parse_args():
 
     # read-tree
     read_tree_parser = subparser.add_parser("read-tree",help="To extract the directory in current directory",description="It will take oid and recursively collect files from the trees and  ")
-    read_tree_parser.add_argument("tree")
+    read_tree_parser.add_argument("tree",type=oid)
     read_tree_parser.set_defaults(func=read_tree)
 
     # commit
@@ -48,19 +51,19 @@ def parse_args():
 
     log_parser = subparser.add_parser("log",help="To view all commits",description="it iteratively sees the parent oid of an oid and prints each commit")
     log_parser.set_defaults(func=log)
-    log_parser.add_argument('oid',nargs='?')
+    log_parser.add_argument('oid',nargs='?',type=oid)
 
     # checkout
 
     checkout_parser = subparser.add_parser("checkout",help="To extract a commit implementation to working directory" , description= "It extracts the commit object from get_commit() and uses commit.tree with read_tree to bring the set of directories to working directories.")
-    checkout_parser.add_argument('oid')
+    checkout_parser.add_argument('oid',type=oid)
     checkout_parser.set_defaults(func=checkout)
 
     # Tagging
 
     tag_parser = subparser.add_parser("tag",help="To use it as alias of oid in checkout",description="Its hard to remember the oid everytime we want to checkout thus we tag it with a name")
     tag_parser.add_argument('name')
-    checkout_parser.add_argument('oid',nargs='?')
+    tag_parser.add_argument('oid',nargs='?',type=oid)
     tag_parser.set_defaults(func=tag)
 
     return parser.parse_args()
@@ -95,7 +98,6 @@ def log(args):
         print(f'commit : {oid}\n')
         print(textwrap.indent(commit.message,'      '))
         print('')
-
         oid = commit.parent
 
 
@@ -103,7 +105,7 @@ def checkout(args):
     base.checkout(args.oid)
 
 def tag(args):
-    oid = data.get_ref('HEAD') or args.oid
+    oid = args.oid or data.get_ref('HEAD')
     base.create_tag(args.name,oid)
 
 def main():

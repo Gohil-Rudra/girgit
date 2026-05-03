@@ -125,3 +125,5 @@ def is_ignored(path):
     return any(p in {'.girgit','.git','.venv','__pycache__'} for p in parts)
 
 
+def get_oid(name):
+    return data.get_ref(name) or name
