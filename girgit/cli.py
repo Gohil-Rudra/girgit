@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 import textwrap
+import subprocess
 
 from . import data
 from . import base
@@ -113,15 +114,29 @@ def tag(args):
     base.create_tag(args.name,args.oid)
 
 def k(args): # Creation of edges for visualization
+    dot = "digraph commits{\n"
     oids = set()
     for ref_name,ref in data.iter_refs():
-        print(ref_name,ref)
+        # print(ref_name,ref)
+        dot += f'"{ref_name}" [shape=note]\n'
+        dot += f'"{ref_name}" -> "{ref}"\n'
         oids.add(ref)
     for oid in base.iter_commits_and_parents(oids):
         commit = base.get_commit(oid)
-        print(oid)
+        #print(oid)
+        dot += f'"{oid}" [shape=box label="{oid[:10]}..." style=filled]\n'
         if commit.parent:
-            print("Parent ",commit.parent)
+            #print("Parent ",commit.parent)
+            dot += f'"{oid}" -> "{commit.parent}"\n'
+
+    dot += "}"
+    print(dot)
+    subprocess.run(
+        'dot -Tpdf | open -f -a Preview',
+        shell=True,
+        input = dot,
+        text=True
+    )
 
 def main():
     args = parse_args()
