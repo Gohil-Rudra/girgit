@@ -141,8 +141,8 @@ def get_oid(name):
         f'refs/heads/{name}',
     ]
     for ref in refs_to_try:
-        if data.get_ref(ref):
-            return data.get_ref(ref)
+        if data.get_ref(ref,deref=False).value: # Does the ref exist ?
+            return data.get_ref(ref,deref=True).value # where does it point ?
 
     # name is SHA1
 

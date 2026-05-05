@@ -30,12 +30,21 @@ def get_object(oid,expected='blob'):
 
 RefValue = namedtuple('RefValue',['symbolic','value'])
 def update_ref(ref,value,deref=True):
-    assert not value.symbolic
+    # assert not value.symbolic ; we don't need to assert that the ref is non-symbolic as we were writing only oid until now, lets now write the refs_name too
+    # here ref is like refs/tags/heads and value is RefValue namedtuple
     ref = get_ref_internal(ref,deref)[0]
+
+    assert value.value
+
+    if value.symbolic:
+        value = f'ref:{value.value}'
+    else:
+        value = value.value
+
     ref_path = f'{GIT_DIR}/{ref}'
     os.makedirs(os.path.dirname(ref_path),exist_ok=True)
     with open (f'{ref_path}','w') as inp:
-        inp.write(value.value)
+        inp.write(value)
 
 def get_ref(ref,deref=True):
     return get_ref_internal(ref,deref)[1]
