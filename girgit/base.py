@@ -27,10 +27,10 @@ def write_tree(directory="."):
                 type_ = 'tree'
                 oid = write_tree(full)
 
-            entries.append((type_,oid,entry.name))
+            entries.append((entry.name,oid,type_))
 
     # Create the tree object and hash it.
-    tree = ''.join(f'{type_} {oid} {name}\n' for type_,oid,name in sorted(entries))
+    tree = ''.join(f'{type_} {oid} {name}\n' for name,oid,type_ in sorted(entries))
     return data.hash_object(tree.encode(),'tree')
 
 def iter_tree_entries(oid):
@@ -70,19 +70,19 @@ def empty_current_dir():
                 continue
             os.remove(path)
         for dirname in dirnames:
-            path = os.path.relpath(f'{root}/{filename}')
+            path = os.path.relpath(f'{root}/{dirname}')
             if is_ignored(path):
                 continue
 
             try :
                 os.rmdir(path)
-            except OSError,FileNotFoundError:
+            except (OSError,FileNotFoundError):
                 pass
 
 def commit(message):
     commit = f'tree {write_tree()}\n'
 
-    HEAD = data.get_ref('HEAD')
+    HEAD = data.get_ref('HEAD').value
     if HEAD:
         commit += f'parent {HEAD}\n'
 
@@ -90,7 +90,7 @@ def commit(message):
     commit += f'{message}\n'
 
     oid = data.hash_object(commit.encode(),'commit')
-    data.update_ref('HEAD',oid)
+    data.update_ref('HEAD',data.RefValue(symbolic = False,value = oid))
     return oid
 
 
@@ -129,7 +129,7 @@ def is_branch(name):
     return data.get_ref(f'refs/heads/{name}').value is not None
 
 def create_tag(name,oid):
-    data.update_ref(f'refs/tags/{name}',oid)
+    data.update_ref(f'refs/tags/{name}',data.RefValue(symbolic=False,value=oid))
 
 def is_ignored(path):
     parts = path.split(os.sep)
@@ -176,4 +176,4 @@ def iter_commits_and_parents(oids):
         oids.appendleft(commit.parent)
 
 def create_branch(name,oid):
-    data.update_ref(f'refs/heads/{name}',oid)
+    data.update_ref(f'refs/heads/{name}',data.RefValue(symbolic=False,value=oid))

@@ -74,10 +74,10 @@ def parse_args():
 
     # branch
 
-    branch_parser = subparser.add_parser("branch",help="To create a new branch",description="We will make HEAD point to the branch tag and move the branch tag on every commit thus now new tag creation at every commit required")
+    branch_parser = subparser.add_parser("branch",help="To create a new branch",description="Creates a new branch (a reference pointing to a commit). Does not change HEAD.")
     branch_parser.set_defaults(func=branch)
     branch_parser.add_argument('name')
-    branch_parser.add_argument('start_point',default='@',type=oid,required=True)
+    branch_parser.add_argument('start_point',default='@',type=oid,nargs='?')
 
 
     return parser.parse_args()
@@ -125,8 +125,9 @@ def k(args): # Creation of edges for visualization
     for ref_name,ref in data.iter_refs(deref=False): # Where to Start
         # print(ref_name,ref)
         dot += f'"{ref_name}" [shape=note]\n'
-        dot += f'"{ref_name}" -> "{ref}"\n'
-        oids.add(ref)
+        dot += f'"{ref_name}" -> "{ref.value}"\n'
+        if not ref.symbolic:
+            oids.add(ref.value)
     for oid in base.iter_commits_and_parents(oids): # Where it leads from the start points
         commit = base.get_commit(oid)
         #print(oid)

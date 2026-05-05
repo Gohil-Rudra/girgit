@@ -7,7 +7,7 @@ GIT_DIR = '.girgit'
 
 # It deals with creation of .girgit repo
 def init():
-    os.makedirs(GIT_DIR)
+    os.makedirs(GIT_DIR,exist_ok=True)
     os.makedirs(f'{GIT_DIR}/objects') # Creating the objects repo
 
 # The function of hash_object is to create the file and hash it then output the hexdigest
@@ -37,7 +37,7 @@ def update_ref(ref,value,deref=True):
     assert value.value
 
     if value.symbolic:
-        value = f'ref:{value.value}'
+        value = f'ref: {value.value}'
     else:
         value = value.value
 
@@ -50,22 +50,21 @@ def get_ref(ref,deref=True):
     return get_ref_internal(ref,deref)[1]
 
 def get_ref_internal(ref,deref): # Go to the ends of the world and find the last oid referenced in the symbolic_ref chain, iff deref=True
-    try:
-        with open (f'{GIT_DIR}/{ref}','r') as out:
+    path = f'{GIT_DIR}/{ref}'
+    if os.path.isfile(path):
+        with open (path,'r') as out:
             value = out.read().strip()
 
-        symbolic_flag = False
-        if value and value.startswith('ref:'): # ref: <ref_name> is how it is stored so
-            value = value.split(":",1)[1].strip()
-            if deref:
-                return get_ref_internal(value,deref=True)
-            else:
-                symbolic_flag = True
+            symbolic_flag = False
+            if value and value.startswith('ref:'): # ref: <ref_name> is how it is stored so
+                value = value.split(":",1)[1].strip()
+                if deref:
+                    return get_ref_internal(value,deref=True)
+                else:
+                    symbolic_flag = True
+            return ref,RefValue(symbolic=symbolic_flag,value=value)
 
-        return ref,RefValue(symbolic=symbolic_flag,value=value)
-
-    except (FileNotFoundError,IsADirectoryError):
-        return ref,RefValue(symbolic=False,value=None)
+    return ref,RefValue(symbolic=False,value=None)
 
 
 def iter_refs(deref=True):
