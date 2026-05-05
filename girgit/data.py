@@ -29,37 +29,41 @@ def get_object(oid,expected='blob'):
     return content # This is bytes data
 
 RefValue = namedtuple('RefValue',['symbolic','value'])
-def update_ref(ref,value):
+def update_ref(ref,value,deref=True):
     assert not value.symbolic
-    ref = get_ref_internal(ref)[0]
+    ref = get_ref_internal(ref,deref)[0]
     ref_path = f'{GIT_DIR}/{ref}'
     os.makedirs(os.path.dirname(ref_path),exist_ok=True)
     with open (f'{ref_path}','w') as inp:
         inp.write(value.value)
 
-def get_ref(ref):
-    return get_ref_internal(ref)[1]
+def get_ref(ref,deref=True):
+    return get_ref_internal(ref,deref)[1]
 
-def get_ref_internal(ref): # Go to the ends of the world and find the last oid referenced in the symbolic_ref chain
+def get_ref_internal(ref,deref): # Go to the ends of the world and find the last oid referenced in the symbolic_ref chain, iff deref=True
     try:
         with open (f'{GIT_DIR}/{ref}','r') as out:
             value = out.read().strip()
 
+        symbolic_flag = False
         if value and value.startswith('ref:'): # ref: <ref_name> is how it is stored so
-            ref = value.split(":",1)[1].strip()
-            return get_ref_internal(ref)
+            value = value.split(":",1)[1].strip()
+            if deref:
+                return get_ref_internal(value,deref=True)
+            else:
+                symbolic_flag = True
 
-        return ref,RefValue(symbolic=False,value=value)
+        return ref,RefValue(symbolic=symbolic_flag,value=value)
 
     except (FileNotFoundError,IsADirectoryError):
         return ref,RefValue(symbolic=False,value=None)
 
 
-def iter_refs():
+def iter_refs(deref=True):
     refs = ['HEAD']
     for root,_,filenames in os.walk(f'{GIT_DIR}/refs'):
         root = os.path.relpath(root,GIT_DIR)
         refs.extend(f'{root}/{file}' for file in filenames)
     for ref_name in refs:
-        yield ref_name , get_ref(ref_name)
+        yield ref_name , get_ref(ref_name,deref=deref)
 

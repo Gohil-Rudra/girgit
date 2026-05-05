@@ -122,12 +122,12 @@ def tag(args):
 def k(args): # Creation of edges for visualization
     dot = "digraph commits{\n"
     oids = set()
-    for ref_name,ref in data.iter_refs():
+    for ref_name,ref in data.iter_refs(deref=False): # Where to Start
         # print(ref_name,ref)
         dot += f'"{ref_name}" [shape=note]\n'
         dot += f'"{ref_name}" -> "{ref}"\n'
         oids.add(ref)
-    for oid in base.iter_commits_and_parents(oids):
+    for oid in base.iter_commits_and_parents(oids): # Where it leads from the start points
         commit = base.get_commit(oid)
         #print(oid)
         dot += f'"{oid}" [shape=box label="{oid[:10]}..." style=filled]\n'
