@@ -1,6 +1,8 @@
 import os
 import hashlib
 
+from collections import namedtuple
+
 GIT_DIR = '.girgit'
 
 # It deals with creation of .girgit repo
@@ -26,19 +28,31 @@ def get_object(oid,expected='blob'):
         assert type_ == expected , f'Wanted {expected} type , got {type_}'
     return content # This is bytes data
 
-
-def update_ref(ref,oid):
+RefValue = namedtuple('RefValue',['symbolic','value'])
+def update_ref(ref,value):
+    assert not value.symbolic
+    ref = get_ref_internal(ref)[0]
     ref_path = f'{GIT_DIR}/{ref}'
     os.makedirs(os.path.dirname(ref_path),exist_ok=True)
     with open (f'{ref_path}','w') as inp:
-        inp.write(oid)
+        inp.write(value.value)
 
 def get_ref(ref):
+    return get_ref_internal(ref)[1]
+
+def get_ref_internal(ref): # Go to the ends of the world and find the last oid referenced in the symbolic_ref chain
     try:
         with open (f'{GIT_DIR}/{ref}','r') as out:
-            return out.read()
+            value = out.read().strip()
+
+        if value and value.startswith('ref:'): # ref: <ref_name> is how it is stored so
+            ref = value.split(":",1)[1].strip()
+            return get_ref_internal(ref)
+
+        return ref,RefValue(symbolic=False,value=value)
+
     except (FileNotFoundError,IsADirectoryError):
-        return None
+        return ref,RefValue(symbolic=False,value=None)
 
 
 def iter_refs():

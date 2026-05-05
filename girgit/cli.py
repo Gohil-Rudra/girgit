@@ -72,6 +72,14 @@ def parse_args():
     k_parser = subparser.add_parser("k",help="To visualize the graph",description="We will use graphviz to create the graph similar to gitk")
     k_parser.set_defaults(func=k)
 
+    # branch
+
+    branch_parser = subparser.add_parser("branch",help="To create a new branch",description="We will make HEAD point to the branch tag and move the branch tag on every commit thus now new tag creation at every commit required")
+    branch_parser.set_defaults(func=branch)
+    branch_parser.add_argument('name')
+    branch_parser.add_argument('start_point',default='@',type=oid,required=True)
+
+
     return parser.parse_args()
 
 
@@ -98,13 +106,11 @@ def commit(args):
     print(base.commit(args.message))
 
 def log(args):
-    oid = args.oid
-    while oid:
+    for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
         print(f'commit : {oid}\n')
         print(textwrap.indent(commit.message,'      '))
         print('')
-        oid = commit.parent
 
 
 def checkout(args):
@@ -137,6 +143,11 @@ def k(args): # Creation of edges for visualization
         input = dot,
         text=True
     )
+
+def branch(args):
+    base.create_branch(args.name,args.start_point)
+    print(f'Branch {args.name} created at {args.start_point[:10]}...')
+    
 
 def main():
     args = parse_args()
