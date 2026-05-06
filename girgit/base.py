@@ -118,7 +118,7 @@ def checkout (name):
     commit = get_commit (oid)
     read_tree (commit.tree)
 
-    if is_branch(name):
+    if is_branch(name): # here we are using name so in cli_checkout we did require to pass the name of commit and not the oid !
         HEAD = data.RefValue(symbolic=True,value=f'refs/heads/{name}')
     else:
         HEAD = data.RefValue(symbolic=False,value=oid)

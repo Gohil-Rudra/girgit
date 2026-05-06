@@ -57,7 +57,7 @@ def parse_args():
     # checkout
 
     checkout_parser = subparser.add_parser("checkout",help="To extract a commit implementation to working directory" , description= "It extracts the commit object from get_commit() and uses commit.tree with read_tree to bring the set of directories to working directories.")
-    checkout_parser.add_argument('oid',type=oid)
+    checkout_parser.add_argument('commit')
     checkout_parser.set_defaults(func=checkout)
 
     # Tagging
@@ -114,7 +114,7 @@ def log(args):
 
 
 def checkout(args):
-    base.checkout(args.oid)
+    base.checkout(args.commit)
 
 def tag(args):
     base.create_tag(args.name,args.oid)

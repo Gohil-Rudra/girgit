@@ -43,7 +43,7 @@ def update_ref(ref,value,deref=True):
 
     ref_path = f'{GIT_DIR}/{ref}'
     os.makedirs(os.path.dirname(ref_path),exist_ok=True)
-    with open (f'{ref_path}','w') as inp:
+    with open (ref_path,'w') as inp:
         inp.write(value)
 
 def get_ref(ref,deref=True):
