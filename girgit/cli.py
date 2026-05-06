@@ -6,6 +6,7 @@ import subprocess
 
 from . import data
 from . import base
+from .base import is_branch
 
 
 def parse_args():
@@ -79,6 +80,10 @@ def parse_args():
     branch_parser.add_argument('name')
     branch_parser.add_argument('start_point',default='@',type=oid,nargs='?')
 
+    # status
+
+    status_parser = subparser.add_parser("status",help="To see info of current working directory.")
+    status_parser.set_defaults(func=status)
 
     return parser.parse_args()
 
@@ -148,7 +153,23 @@ def k(args): # Creation of edges for visualization
 def branch(args):
     base.create_branch(args.name,args.start_point)
     print(f'Branch {args.name} created at {args.start_point[:10]}...')
-    
+
+def get_branch_name():
+    HEAD = data.get_ref('HEAD',deref=False)
+    if HEAD.symbolic:
+        HEAD = HEAD.value
+        assert HEAD.startswith('refs/heads/')
+        return os.path.relpath(HEAD,'refs/heads/')
+
+def status(args):
+    branch = get_branch_name()
+
+    if branch:
+        print(f'On branch {branch}')
+    else:
+        HEAD = base.get_oid('@')
+        print(f'HEAD detached at {HEAD[0:10]}...')
+
 
 def main():
     args = parse_args()
