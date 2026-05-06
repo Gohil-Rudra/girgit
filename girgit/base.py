@@ -177,3 +177,8 @@ def iter_commits_and_parents(oids):
 
 def create_branch(name,oid):
     data.update_ref(f'refs/heads/{name}',data.RefValue(symbolic=False,value=oid))
+
+def init():
+    data.init()
+    data.update_ref('HEAD',data.RefValue(symbolic=True,value='refs/heads/master'))
+    

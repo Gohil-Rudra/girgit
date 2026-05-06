@@ -85,7 +85,7 @@ def parse_args():
 
 
 def init(args):
-    data.init()
+    base.init()
     print(f'Initialized Empty girgit repo at {os.path.join(os.getcwd(),data.GIT_DIR)}')
 
 def hash_object(args):
