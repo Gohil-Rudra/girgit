@@ -67,11 +67,13 @@ def get_ref_internal(ref,deref): # Go to the ends of the world and find the last
     return ref,RefValue(symbolic=False,value=None)
 
 
-def iter_refs(deref=True):
+def iter_refs(prefix='',deref=True):
     refs = ['HEAD']
     for root,_,filenames in os.walk(f'{GIT_DIR}/refs'):
         root = os.path.relpath(root,GIT_DIR)
         refs.extend(f'{root}/{file}' for file in filenames)
     for ref_name in refs:
+        if not ref_name.startswith(prefix):
+            continue
         yield ref_name , get_ref(ref_name,deref=deref)
 

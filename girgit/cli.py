@@ -77,7 +77,7 @@ def parse_args():
 
     branch_parser = subparser.add_parser("branch",help="To create a new branch",description="Creates a new branch (a reference pointing to a commit). Does not change HEAD.")
     branch_parser.set_defaults(func=branch)
-    branch_parser.add_argument('name')
+    branch_parser.add_argument('name',nargs='?')
     branch_parser.add_argument('start_point',default='@',type=oid,nargs='?')
 
     # status
@@ -151,19 +151,18 @@ def k(args): # Creation of edges for visualization
     )
 
 def branch(args):
-    base.create_branch(args.name,args.start_point)
-    print(f'Branch {args.name} created at {args.start_point[:10]}...')
+    if not args.name:
+        current = base.get_branch_name()
+        for branch_name in base.iter_branch_name():
+            prefix = '*' if branch_name == current else ' '
+            print(f'{prefix} {branch_name}')
+    else:
+        base.create_branch(args.name,args.start_point)
+        print(f'Branch {args.name} created at {args.start_point[:10]}...')
 
-def get_branch_name():
-    HEAD = data.get_ref('HEAD',deref=False)
-    if HEAD.symbolic:
-        HEAD = HEAD.value
-        assert HEAD.startswith('refs/heads/')
-        return os.path.relpath(HEAD,'refs/heads/')
 
 def status(args):
-    branch = get_branch_name()
-
+    branch = base.get_branch_name()
     if branch:
         print(f'On branch {branch}')
     else:

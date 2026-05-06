@@ -181,4 +181,15 @@ def create_branch(name,oid):
 def init():
     data.init()
     data.update_ref('HEAD',data.RefValue(symbolic=True,value='refs/heads/master'))
-    
+
+def get_branch_name():
+    HEAD = data.get_ref('HEAD',deref=False)
+    if HEAD.symbolic:
+        HEAD = HEAD.value
+        assert HEAD.startswith('refs/heads/')
+        return os.path.relpath(HEAD,'refs/heads/')
+    return None
+
+def iter_branch_name():
+    for ref_name,_ in data.iter_refs('refs/heads/'):
+        yield os.path.relpath(ref_name,'refs/heads/')
