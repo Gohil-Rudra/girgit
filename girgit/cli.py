@@ -91,6 +91,11 @@ def parse_args():
     reset_parser.set_defaults(func=reset)
     reset_parser.add_argument('oid',type=oid)
 
+    # show
+
+    show_parser = subparser.add_parser("show",help="To show the difference between previous commit and latest commit",description="That + and - code  we see in github which helps us to read the commit and shows the changes made.")
+    show_parser.set_defaults(func=show)
+    show_parser.add_argument('oid',nargs='?',type=oid,default='@')
     return parser.parse_args()
 
 
@@ -122,11 +127,7 @@ def log(args):
         refs.setdefault(ref.value,[]).append(ref_name)
 
     for oid in base.iter_commits_and_parents({args.oid}):
-        refs_str = ','.join(refs[oid])
-        commit = base.get_commit(oid)
-        print(f'commit : {oid} {refs_str}\n')
-        print(textwrap.indent(commit.message,'      '))
-        print('')
+        _print_commit(oid,base.get_commit(oid),refs[oid])
 
 
 def checkout(args):
@@ -182,6 +183,18 @@ def status(args):
 
 def reset(args):
     base.reset(args.oid)
+
+def _print_commit(oid,commit,refs=None): # here refs is a list not a dict
+    refs_str = ','.join(refs) if refs else ""
+    print(f'commit : {oid} {refs_str}\n')
+    print(textwrap.indent(commit.message, '      '))
+    print('')
+
+def show(args):
+    if not args.oid:
+        return
+    commit = base.get_commit(args.oid)
+    _print_commit(args.oid,commit)
 
 def main():
     args = parse_args()
