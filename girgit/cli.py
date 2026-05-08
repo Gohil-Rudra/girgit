@@ -6,7 +6,7 @@ import subprocess
 
 from . import data
 from . import base
-from .base import is_branch
+
 
 
 def parse_args():
@@ -85,6 +85,12 @@ def parse_args():
     status_parser = subparser.add_parser("status",help="To see info of current working directory.")
     status_parser.set_defaults(func=status)
 
+    # reset
+
+    reset_parser = subparser.add_parser("reset",help="To move back in commit history",description="reset is different from checkout. Here in reset the symbolic ref HEAD which points to master branch so master is moved back. Whereas in checkout the head move")
+    reset_parser.set_defaults(func=reset)
+    reset_parser.add_argument('oid',type=oid)
+
     return parser.parse_args()
 
 
@@ -111,9 +117,14 @@ def commit(args):
     print(base.commit(args.message))
 
 def log(args):
+    refs = {} # from oid to ref_tag dict
+    for ref_name,ref in data.iter_refs():
+        refs.setdefault(ref.value,[]).append(ref_name)
+
     for oid in base.iter_commits_and_parents({args.oid}):
+        refs_str = ','.join(refs[oid])
         commit = base.get_commit(oid)
-        print(f'commit : {oid}\n')
+        print(f'commit : {oid} {refs_str}\n')
         print(textwrap.indent(commit.message,'      '))
         print('')
 
@@ -169,6 +180,8 @@ def status(args):
         HEAD = base.get_oid('@')
         print(f'HEAD detached at {HEAD[0:10]}...')
 
+def reset(args):
+    base.reset(args.oid)
 
 def main():
     args = parse_args()
