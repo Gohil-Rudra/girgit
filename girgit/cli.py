@@ -6,7 +6,7 @@ import subprocess
 
 from . import data
 from . import base
-
+from . import diff
 
 
 def parse_args():
@@ -186,7 +186,7 @@ def reset(args):
 
 def _print_commit(oid,commit,refs=None): # here refs is a list not a dict
     refs_str = ','.join(refs) if refs else ""
-    print(f'commit : {oid} {refs_str}\n')
+    print(f'commit : {oid} {refs_str}\n') # print all the refs pointing to that commit.
     print(textwrap.indent(commit.message, '      '))
     print('')
 
@@ -194,7 +194,16 @@ def show(args):
     if not args.oid:
         return
     commit = base.get_commit(args.oid)
+    parent_tree = None
+
+    if commit.parent:
+        parent_tree = base.get_commit(commit.parent).tree
+
     _print_commit(args.oid,commit)
+
+    result = diff.diff_tree(base.get_tree(parent_tree),base.get_tree(commit.tree))
+    print(result)
+
 
 def main():
     args = parse_args()
