@@ -2,6 +2,7 @@ import collections
 from . import data
 from . import base
 from . import Myers
+from .Edit_Wrapper import Edit
 
 '''
 We will compare the tree of the commit to the tree of its parent commit. 
@@ -48,8 +49,20 @@ def diff_blob(o_from,o_to,path="blob"):
     b_lines = b_file.decode().splitlines(keepends=True)
 
 
-    output = f'--- a{path}\n+++ b{path}\n'
-    for edit in Myers.Myers(a_lines, b_lines).diff_operations():
+    output = f'--- a/{path}\n+++ b/{path}\n'
+
+    edits = Myers.Myers(a_lines, b_lines).diff_operations()
+
+    # hunk meta data : @+ .... @-....
+    old_start = next((edit.old_line.number for edit in edits if edit.old_line),0)
+    old_chunk = sum( 1 for edit in edits if edit.type != "ins")
+
+    new_start = next((edit.new_line.number for edit in edits if edit.new_line), 0)
+    new_chunk = sum(1 for edit in edits if edit.type != "del")
+
+    output += f'@@ -{old_start},{old_chunk} +{new_start},{new_chunk} @@\n'
+
+    for edit in edits:
         if edit.type == 'ins':
             output += f'+ {edit.text}'
         elif edit.type == 'del':
