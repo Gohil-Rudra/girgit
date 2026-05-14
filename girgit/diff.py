@@ -25,8 +25,9 @@ def compare_tree(*trees):
     for i , tree in enumerate(trees):
         for path,oid in tree.items():# output of get_tree() function goes here
             entries[path][i] = oid # tree wise oid of the file : abc.txt : [123...,456..., so on]
-        for path,oids in entries.items():
-            yield path,*oids # return the dictionary
+
+    for path,oids in entries.items():
+        yield path,*oids # return the dictionary
 
 
 
