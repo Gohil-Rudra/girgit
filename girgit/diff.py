@@ -1,4 +1,8 @@
 import collections
+from . import data
+from . import base
+from . import Myers
+
 '''
 We will compare the tree of the commit to the tree of its parent commit. 
 If a file has one OID in the former tree and a different OID in the latter tree, 
@@ -29,12 +33,36 @@ def compare_tree(*trees):
     for path,oids in entries.items():
         yield path,*oids # return the dictionary
 
+def is_binary(data_bytes):
+    return b'\x00' in data_bytes or not data_bytes.isascii()
 
+def diff_blob(o_from,o_to,path="blob"):
+
+    a_file = data.get_object(o_from) if o_from else b""
+    b_file = data.get_object(o_to) if o_to else b""
+
+    if is_binary(a_file) or is_binary(b_file):
+        return f'Binary files a/{path} and b/{path} differ\n'
+
+    a_lines = a_file.decode().splitlines(keepends=True)
+    b_lines = b_file.decode().splitlines(keepends=True)
+
+
+    output = f'--- a{path}\n+++ b{path}\n'
+    for edit in Myers.Myers(a_lines, b_lines).diff_operations():
+        if edit.type == 'ins':
+            output += f'+ {edit.text}'
+        elif edit.type == 'del':
+            output += f'- {edit.text}'
+        else:
+            output += f'  {edit.text}'
+
+    return output
 
 def diff_tree(t_from,t_to):
     output = ''
     for path, o_from , o_to in compare_tree(t_from,t_to):
         if o_from != o_to:
-            output += f'File changed : {path} \n'
+            output += diff_blob(o_from,o_to,path)
     return output
 

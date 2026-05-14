@@ -127,7 +127,7 @@ def log(args):
         refs.setdefault(ref.value,[]).append(ref_name)
 
     for oid in base.iter_commits_and_parents({args.oid}):
-        _print_commit(oid,base.get_commit(oid),refs[oid])
+        _print_commit(oid,base.get_commit(oid),refs.get(oid,[]))
 
 
 def checkout(args):

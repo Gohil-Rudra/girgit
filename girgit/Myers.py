@@ -1,7 +1,5 @@
 from collections import defaultdict
-from Edit_Wrapper import Edit,Line
-from girgit.Edit_Wrapper import Edit
-
+from . import Edit_Wrapper
 
 class Myers:
     def __init__(self,a,b):
@@ -62,12 +60,12 @@ class Myers:
         diff = []
         for prev_x , prev_y , x , y in self.back_track():
             if x == prev_x : # downward / insert
-                diff.insert(0,Edit("ins",None,Line(prev_y + 1 ,self.b[prev_y])))
+                diff.insert(0,Edit_Wrapper.Edit("ins",None,Edit_Wrapper.Line(prev_y + 1 ,self.b[prev_y])))
                 # this means at this point source has nothing but target has self.b[prev_y]
             elif y == prev_y : # rightward / delete
-                diff.insert(0,Edit("del",Line(prev_x+1,self.a[prev_x]),None))
+                diff.insert(0,Edit_Wrapper.Edit("del",Edit_Wrapper.Line(prev_x+1,self.a[prev_x]),None))
             else:
-                diff.insert(0,Edit("eql",Line(prev_x+1 ,self.a[prev_x]),Line(prev_y+1,self.b[prev_y])))
+                diff.insert(0,Edit_Wrapper.Edit("eql",Edit_Wrapper.Line(prev_x+1 ,self.a[prev_x]),Edit_Wrapper.Line(prev_y+1,self.b[prev_y])))
         return diff
 
     def print_diff(self):
@@ -75,7 +73,7 @@ class Myers:
         for edit in edits:
             prefix = {"ins": "+ ", "del": "- ", "eql": "  "}[edit.type]
             print(prefix + edit.text,end="")
-            
+
 
 
 
