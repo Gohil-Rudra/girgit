@@ -187,12 +187,12 @@ def get_branch_name():
     if HEAD.symbolic:
         HEAD = HEAD.value
         assert HEAD.startswith('refs/heads/')
-        return os.path.relpath(HEAD,'refs/heads/')
+        return HEAD[len('refs/heads/'):]
     return None
 
 def iter_branch_name():
     for ref_name,_ in data.iter_refs('refs/heads/'):
-        yield os.path.relpath(ref_name,'refs/heads/')
+        yield ref_name[len('refs/heads/'):]
 
 def reset(oid):
     data.update_ref('HEAD',data.RefValue(symbolic=False,value=oid))

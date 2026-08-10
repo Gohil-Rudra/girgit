@@ -155,12 +155,21 @@ def k(args): # Creation of edges for visualization
 
     dot += "}"
     print(dot)
-    subprocess.run(
-        'dot -Tpdf | open -f -a Preview',
-        shell=True,
-        input = dot,
-        text=True
-    )
+    if sys.platform == "win32":
+        subprocess.run(
+            'dot -Tpdf -o girgit_graph.pdf',
+            shell=True,
+            input=dot,
+            text=True
+        )
+        os.startfile("girgit_graph.pdf")
+    else:
+        subprocess.run(
+            'dot -Tpdf | open -f -a Preview',
+            shell=True,
+            input=dot,
+            text=True
+        )
 
 def branch(args):
     if not args.name:
